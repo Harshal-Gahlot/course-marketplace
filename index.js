@@ -1,9 +1,9 @@
 const express = require("express");
+require("dotenv").config();
 const { userRouter } = require("./router/user");
 const { adminRouter } = require("./router/admin");
 const { coursesRouter } = require("./router/courses");
 const { mongoose } = require("mongoose");
-require("dotenv").config();
 
 console.log(process.env.MONGO_DB_CONNECTION_STRING);
 (async () => await mongoose.connect(process.env.MONGO_DB_CONNECTION_STRING))()

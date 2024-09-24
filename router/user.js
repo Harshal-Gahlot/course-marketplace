@@ -2,7 +2,7 @@ const { UserModel } = require("../db/userSchema");
 const auth = require("../auth/userAuth");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const express = require("express");
+const express = require("express"); // Qn is it reqired?
 const { Router } = require("express");
 
 const userRouter = Router();
