@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
-const purchasesSchema = new Schema({
+const PurchasesSchema = new Schema({
     userId: ObjectId,
     courseId: ObjectId
 });
 
-const purchasesModel = mongoose.model("purchases", purchasesSchema);
+const PurchasesModel = mongoose.model("purchases", PurchasesSchema);
 
-module.exports = { purchasesModel }
+module.exports = { PurchasesModel }

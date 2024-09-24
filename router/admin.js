@@ -1,5 +1,5 @@
 const adminModel = require("../db/adminSchema");
-const { auth } = require("../auth/userAuth");
+const auth = require("../auth/userAuth");
 const { Router } = require("express");
 const adminRouter = Router();
 

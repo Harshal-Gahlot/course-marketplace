@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
-const courseSchema = new Schema({
+const CourseSchema = new Schema({
     title: String,
     description: String,
     prise: Number,
@@ -11,7 +11,6 @@ const courseSchema = new Schema({
     creator: ObjectId
 });
 
+const CourseModel = mongoose.model("course", CourseSchema);
 
-const courseModel = mongoose.model("course", courseSchema);
-
-module.exports = { courseModel }
+module.exports = { CourseModel }
