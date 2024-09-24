@@ -3,9 +3,11 @@ const { userRouter } = require("./router/user");
 const { adminRouter } = require("./router/admin");
 const { coursesRouter } = require("./router/courses");
 const { mongoose } = require("mongoose");
+require("dotenv").config();
 
-mongoose.connect("mongodb+srv://18oo18oo12:KnNLJWqryJnpOheW@cluster0.qk8pt.mongodb.net/course-marketplace")
 
+console.log(process.env.MONGO_DB_CONNECTION_STRING);
+(async () => await mongoose.connect(process.env.MONGO_DB_CONNECTION_STRING))()
 const app = express();
 const PORT = 3000;
 
