@@ -10,7 +10,4 @@ const adminSchema = new Schema({
     lastname: String
 });
 
-
 const adminModel = mongoose.model("admin", adminSchema);
-
-{}

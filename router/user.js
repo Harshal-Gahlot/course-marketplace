@@ -1,5 +1,6 @@
+const userModel = require("../db/userSchema")
+const { auth } = require("../auth/userAuth")
 const { Router } = require("express");
-const adminModel = require("../db/userSchema")
 const userRouter = Router();
 
 userRouter.post("/signup", (req, res) => {
@@ -10,7 +11,7 @@ userRouter.post("/login", (req, res) => {
     res.send("ok");
 });
 
-userRouter.get("/purchases", (req, res) => {
+userRouter.get("/purchases", auth, (req, res) => {
     res.send("ok");
 });
 
