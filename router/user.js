@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const express = require("express");
 const { Router } = require("express");
+const bcrypt = require("bcrypt");
 
 const userRouter = Router();
 userRouter.use(express.json());
@@ -16,8 +17,8 @@ userRouter.post("/signup", async (req, res) => {
         "firstname": z.string().max(100).min(3),
         "lastname": z.string().max(100).min(1)
     }).strict();
-
     const { success, error } = bodySchema.safeParse(req.body);
+    req.body.password = await bcrypt.hash(req.body.password, 5);
 
     if (!success) {
         res.json({
@@ -46,7 +47,7 @@ userRouter.post("/login", async (req, res) => {
     }).strict();
 
     const { success, error } = bodySchema.safeParse(req.body);
-    
+
     if (!success) {
         res.json({
             Invalid_Input: error.issues[0].message
@@ -59,7 +60,8 @@ userRouter.post("/login", async (req, res) => {
         res.send("No user with this email");
         return;
     }
-    if (userEntry.password !== req.body.password) {
+    const isCorrectPasswored = await bcrypt.compare(req.body.password, userEntry.password)
+    if (!isCorrectPasswored) {
         res.send("Incorrect Password");
     }
     // Qn directly passing id not within {} i.e. as obj Sol: yes then we can directly assess it w/o doing .id

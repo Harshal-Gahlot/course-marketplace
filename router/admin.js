@@ -1,6 +1,7 @@
 const { AdminModel } = require("../db/adminSchema");
 const auth = require("../auth/userAuth");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { z } = require("zod");
 const express = require("express");
 const { Router } = require("express");
@@ -18,6 +19,7 @@ adminRouter.post("/signup", async (req, res) => {
     }).strict();
 
     const { success, error } = bodySchema.safeParse(req.body);
+    req.body.password = await bcrypt.hash(req.body.password, 5);
 
     if (!success) {
         res.json({
@@ -59,9 +61,10 @@ adminRouter.post("/login", async (req, res) => {
         res.send("Invaild Email or Password");
         return;
     }
-    if (userEntry.password !== req.body.password) {
-        res.send("Incorrect Password, Try again!")
-        return
+    const isCorrectPasswored = bcrypt.compare(req.body.password, userEntry.password);
+    if (!isCorrectPasswored) {
+        res.send("Incorrect Password, Try again!");
+        return;
 
     }
     const token = jwt.sign({ id: userEntry._id }, process.env.ADMIN_JWT_SECRET);
