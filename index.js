@@ -5,7 +5,6 @@ const { adminRouter } = require("./router/admin");
 const { coursesRouter } = require("./router/courses");
 const { mongoose } = require("mongoose");
 
-console.log(process.env.MONGO_DB_CONNECTION_STRING);
 (async () => await mongoose.connect(process.env.MONGO_DB_CONNECTION_STRING))()
 const app = express();
 const PORT = 3000;

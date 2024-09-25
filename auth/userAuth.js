@@ -16,6 +16,5 @@ function userAuth(req, res, next) {
     req.userId = isValid.id;
     next();
 }
-console.log("userAuth:0", userAuth)
 
 module.exports = userAuth;

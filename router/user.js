@@ -1,8 +1,8 @@
 const { UserModel } = require("../db/userSchema");
 const auth = require("../auth/userAuth");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const express = require("express"); // Qn is it reqired?
+const { z } = require("zod");
+const express = require("express");
 const { Router } = require("express");
 
 const userRouter = Router();
@@ -10,17 +10,26 @@ userRouter.use(express.json());
 
 userRouter.post("/signup", async (req, res) => {
 
-    const userData = {
-        "email": req.body.email,
-        "password": req.body.password,
-        "firstname": req.body.firstname,
-        "lastname": req.body.lastname
-    };
+    const bodySchema = z.object({
+        "email": z.string().max(100),
+        "password": z.string().max(100).min(6),
+        "firstname": z.string().max(100).min(3),
+        "lastname": z.string().max(100).min(1)
+    }).strict();
+
+    const { success, error } = bodySchema.safeParse(req.body);
+
+    if (!success) {
+        res.json({
+            Invalid_Input: error.issues[0].message
+        });
+        return;
+    }
 
     try {
-        await UserModel.create(userData);
+        await UserModel.create(req.body);
     } catch (e) {
-        if (e.code === 110000) {
+        if (e.code === 11000) {
             res.send("USER ALREADY EXIST WITH THIS EMAIL!");
         } else {
             console.error(e);
@@ -31,25 +40,35 @@ userRouter.post("/signup", async (req, res) => {
 });
 
 userRouter.post("/login", async (req, res) => {
-    userData = {
-        "email": req.body.email,
-        "password": req.body.password
-    };
+    const bodySchema = z.object({
+        "email": z.string().email().max(100),
+        "password": z.string().min(6).max(50)
+    }).strict();
+
+    const { success, error } = bodySchema.safeParse(req.body);
     
-    const isValidUser = await UserModel.findOne({"email": userData.email});
-    if (!isValidUser) {
-        res.send("Sorry, no user with this email and password");
+    if (!success) {
+        res.json({
+            Invalid_Input: error.issues[0].message
+        });
         return;
     }
-    // Qn: Will this work withoug toString(); Qn directly passing id not within {} i.e. as obj
-    const token = jwt.sign({ id: isValidUser._id.toString() }, process.env.USER_JWT_SECRET)
-    res.send(token)
+
+    const userEntry = await UserModel.findOne({ "email": req.body.email });
+    if (!userEntry) {
+        res.send("No user with this email");
+        return;
+    }
+    if (userEntry.password !== req.body.password) {
+        res.send("Incorrect Password");
+    }
+    // Qn directly passing id not within {} i.e. as obj Sol: yes then we can directly assess it w/o doing .id
+    const token = jwt.sign({ id: userEntry._id }, process.env.USER_JWT_SECRET);
+    res.send(token);
 });
 
 userRouter.get("/purchases", auth, (req, res) => {
     res.send("To be developed");
 });
 
-console.log("exporting userRouter...");
 module.exports = { "userRouter": userRouter };
-console.log("exported userRouter");

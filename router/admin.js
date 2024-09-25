@@ -1,26 +1,35 @@
 const { AdminModel } = require("../db/adminSchema");
 const auth = require("../auth/userAuth");
 const jwt = require("jsonwebtoken");
-require("dotenv").config(); // Qn now that I imported .env in index before this file, is it required?
-const express = require("express"); // Qn is it required?
+const { z } = require("zod");
+const express = require("express");
 const { Router } = require("express");
-const adminRouter = Router();
 
+const adminRouter = Router();
 adminRouter.use(express.json());
 
 adminRouter.post("/signup", async (req, res) => {
 
-    const userData = {
-        "email": req.body.email,
-        "password": req.body.password,
-        "firstname": req.body.firstname,
-        "lastname": req.body.lastname
-    };
+    const bodySchema = z.object({
+        "email": z.string().max(100),
+        "password": z.string().max(100).min(6),
+        "firstname": z.string().max(100).min(3),
+        "lastname": z.string().max(100).min(1)
+    }).strict();
+
+    const { success, error } = bodySchema.safeParse(req.body);
+
+    if (!success) {
+        res.json({
+            Invalid_Input: error.issues[0].message
+        });
+        return;
+    }
 
     try {
-        await AdminModel.create(userData);
+        await AdminModel.create(req.body);
     } catch (e) {
-        if (e.code === 110000) {
+        if (e.code === 11000) {
             res.send("USER ALREADY EXIST WITH THIS EMAIL!");
         } else {
             console.error(e);
@@ -31,17 +40,32 @@ adminRouter.post("/signup", async (req, res) => {
 });
 
 adminRouter.post("/login", async (req, res) => {
-    const userData = {
-        "email": req.body.email,
-        "password": req.body.password
-    };
-    const isValidUser = await AdminModel.findOne({ "email": userData.email });
-    if (!isValidUser) {
+    const bodySchema = z.object({
+        "email": z.string().email().max(100),
+        "password": z.string().min(6).max(50)
+    }).strict();
+
+    const { success, error } = bodySchema.safeParse(req.body);
+
+    if (!success) {
+        res.json({
+            Invalid_Input: error.issues[0].message
+        });
+        return;
+    }
+
+    const userEntry = await AdminModel.findOne({ "email": req.body.email });
+    if (!userEntry) {
         res.send("Invaild Email or Password");
         return;
     }
-    const token = jwt.sign({ id: isValidUser._id.toString() }, process.env.ADMIN_JWT_SECRET)
-    res.send(token)
+    if (userEntry.password !== req.body.password) {
+        res.send("Incorrect Password, Try again!")
+        return
+
+    }
+    const token = jwt.sign({ id: userEntry._id }, process.env.ADMIN_JWT_SECRET);
+    res.send(token);
 });
 
 adminRouter.post("/course", auth, (req, res) => {
