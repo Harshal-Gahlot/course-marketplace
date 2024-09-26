@@ -91,8 +91,6 @@ adminRouter.put("/course", adminAuth, async (req, res) => {
     creatorId = req.userId;
     const { courseId, title, description, imageURL, prise } = req.body;
 
-    console.log('creatorId', creatorId);
-    console.log('courseId', courseId);
     const updated = await CourseModel.updateOne(
         {
             _id: courseId,

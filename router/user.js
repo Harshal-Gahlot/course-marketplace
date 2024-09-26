@@ -1,4 +1,5 @@
 const { UserModel } = require("../db/userSchema");
+const { PurchasesModel } = require("../db/purchasesSchema");
 const userAuth = require("../auth/userAuth");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
@@ -60,7 +61,7 @@ userRouter.post("/login", async (req, res) => {
         res.send("No user with this email");
         return;
     }
-    const isCorrectPasswored = await bcrypt.compare(req.body.password, userEntry.password)
+    const isCorrectPasswored = await bcrypt.compare(req.body.password, userEntry.password);
     if (!isCorrectPasswored) {
         res.send("Incorrect Password");
     }
@@ -69,8 +70,14 @@ userRouter.post("/login", async (req, res) => {
     res.send(token);
 });
 
-userRouter.get("/purchases", userAuth, (req, res) => {
-    res.send("To be developed");
+userRouter.get("/purchases", userAuth, async (req, res) => {
+    const userId = req.userId
+
+    const coursesBought = await PurchasesModel.find({
+        userId
+    })
+
+    res.send(coursesBought)
 });
 
 module.exports = { userRouter };
