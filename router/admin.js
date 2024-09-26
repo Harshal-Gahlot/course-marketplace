@@ -1,5 +1,6 @@
 const { AdminModel } = require("../db/adminSchema");
-const auth = require("../auth/userAuth");
+const { CourseModel } = require("../db/courseSchema");
+const adminAuth = require("../auth/adminAuth");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { z } = require("zod");
@@ -71,19 +72,55 @@ adminRouter.post("/login", async (req, res) => {
     res.send(token);
 });
 
-adminRouter.post("/course", auth, (req, res) => {
-    res.send("endpoint");
+adminRouter.post("/course", adminAuth, async (req, res) => {
+    creatorId = req.userId;
+    const { title, description, imageURL, prise } = req.body;
+
+    await CourseModel.create({
+        title,
+        description,
+        prise,
+        imageURL,
+        creatorId
+    });
+
+    res.send("Course Created!");
 });
 
-adminRouter.delete("/course", auth, (req, res) => {
-    res.send("endpoint");
+adminRouter.put("/course", adminAuth, async (req, res) => {
+    creatorId = req.userId;
+    const { courseId, title, description, imageURL, prise } = req.body;
+
+    console.log('creatorId', creatorId);
+    console.log('courseId', courseId);
+    const updated = await CourseModel.updateOne(
+        {
+            _id: courseId,
+            creatorId: creatorId // This ensures that a creator can only update a course created by them.
+        },
+        {
+            title,
+            description,
+            prise,
+            imageURL
+        });
+
+    if (updated.matchedCount === 0) {
+        res.status(403).send("Fail to update the course, perhaps you are trying to update a course you are not the creator of.");
+        return;
+    }
+    res.send("Course Updated!");
+
 });
 
-adminRouter.put("/course", auth, (req, res) => {
-    res.send("endpoint");
+adminRouter.get("/course", adminAuth, async (req, res) => {
+    creatorId = req.userId;
+    const courses = await CourseModel.find({ "creatorId": creatorId });
+
+    res.send(courses);
 });
 
-adminRouter.get("/course", auth, (req, res) => {
+adminRouter.delete("/course", adminAuth, (req, res) => {
     res.send("endpoint");
 });
 

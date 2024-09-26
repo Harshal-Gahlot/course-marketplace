@@ -1,5 +1,5 @@
 const { UserModel } = require("../db/userSchema");
-const auth = require("../auth/userAuth");
+const userAuth = require("../auth/userAuth");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const express = require("express");
@@ -69,8 +69,8 @@ userRouter.post("/login", async (req, res) => {
     res.send(token);
 });
 
-userRouter.get("/purchases", auth, (req, res) => {
+userRouter.get("/purchases", userAuth, (req, res) => {
     res.send("To be developed");
 });
 
-module.exports = { "userRouter": userRouter };
+module.exports = { userRouter };

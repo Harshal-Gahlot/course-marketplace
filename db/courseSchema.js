@@ -8,7 +8,7 @@ const CourseSchema = new Schema({
     description: String,
     prise: Number,
     imageURL: String,
-    creator: ObjectId
+    creatorId: ObjectId
 });
 
 const CourseModel = mongoose.model("course", CourseSchema);

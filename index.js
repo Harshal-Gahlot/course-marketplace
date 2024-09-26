@@ -15,4 +15,4 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/courses", coursesRouter);
 
-app.listen(PORT, () => console.log("listening"));
+app.listen(PORT, () => console.log("listening\n\n"));
